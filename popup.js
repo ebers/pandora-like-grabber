@@ -1,11 +1,25 @@
+function receiveStations(response) {
+  stations = response.stations;
+  var ul = $('#station-list');
+  for (var i = 0; i < stations.length; i++) {
+    ul.append($('<li>'+stations[i]+'</li>'));
+  }
+}
+
 function requestStations() {
-  alert('requestStations() called');
-  chrome.extension.sendRequest({ msg: "stationList" });
-  alert('requestStations() attempted to sendRequest()');
+  chrome.tabs.getSelected(null, function(tab) {
+    chrome.tabs.sendMessage(tab.id, {msg: "stationList"}, receiveStations);
+  });
 }
 
 function requestLikes() {
-  chrome.extension.sendRequest({ msg: "songList" });
+  chrome.tabs.getSelected(null, function(tab) {
+    chrome.tabs.sendMessage(tab.id, {msg: "songList"}, receiveLikes);
+  })
+}
+
+function receiveLikes(likes) {
+  
 }
 
 document.addEventListener('DOMContentLoaded', function () {
