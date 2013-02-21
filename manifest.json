@@ -1,0 +1,18 @@
+{
+  "manifest_version": 2,
+  
+  "name": "Pandora Like Grabber",
+  "description": "This extension fetches a list of songs youve liked.",
+  "background": {"scripts": ["background.js"]},
+  "version": "1.0",
+  "browser_action": {
+    "default_icon": "icon.png",
+    "default_title": "Pandora scraping!",
+    "default_popup": "popup.html"
+  },
+  "permissions": ["tabs", "http://*.pandora.com/"],
+  "content_scripts": [{
+    "matches": ["http://*.pandora.com/"],
+    "js": ["pandora.js"]
+  }]
+}
