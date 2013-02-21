@@ -13,6 +13,6 @@
   "permissions": ["tabs", "http://*.pandora.com/"],
   "content_scripts": [{
     "matches": ["http://*.pandora.com/"],
-    "js": ["pandora.js"]
+    "js": ["jquery.min.js", "pandora.js"]
   }]
 }
