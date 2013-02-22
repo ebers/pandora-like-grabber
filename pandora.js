@@ -17,11 +17,11 @@ var Pandora = {
             console.log('length of Pandora_songs for station_id ' + station_id + ' is: ' + Pandora._songs[station_id].length);
         }
     },
-    addSong: function(station_id, song, artist, album, liked) {
+    addSong: function(station_id, song, artist, url, liked) {
         if (! station_id in Pandora._songs) {
             return false;
         }
-        Pandora._songs[station_id].push({song: song, artist: artist, album: album, liked: liked});
+        Pandora._songs[station_id].push({song: song, artist: artist, url: url, liked: liked});
         return true;
     },
     lookupStationID: function(station_div) {
@@ -33,7 +33,7 @@ var Pandora = {
         station_id = re.exec($(dd).html())[0];
         fireEvent($('body').find('.legal')[0], 'click');
         return station_id;
-    },
+    },  
     stations: function() {
         if (Pandora._stations.length == 0) {
             Pandora.populateStations();
@@ -67,37 +67,30 @@ var Pandora = {
             return u;
         },
         getSongs: function() {
-            url = Pandora.songGetter.getUrl();
             while (! Pandora.songGetter.done) {
+                url = Pandora.songGetter.getUrl();
                 $.ajax({
-                    url:        url,
-                    success:    function(data) {
-                                    empty_div = $('<div></div>').html(data);
-                                    lis = empty_div.find('li');
-                                    console.log('li length: ' + lis.length);
-                                    for (var i = 0; i < lis.length; i++) {
-                                        var li = lis[i];
-                                        var date = $(li).find('.col2')[0].innerText;
-                                        var artist = $(li).attr('data-artist');
-                                        var song = $($(li).find('h3')[0]).find('a')[0].innerText;
-                                        var album = '';
-                                        Pandora.addSong(Pandora.songGetter.station_id, song, artist, album, date);
-                                        re = /([\w-]+)\/([\w-]+)\/([\w-]+)/ // artist, album, song
-                                    }
-                                    //Pandora.addSong(Pandora.songGetter.station_id, 'a');
-                                    Pandora.songGetter.current_idx += 5;
-                                    Pandora.songGetter.done = true;
-                                },
-                    async:      false
+                    url:    url,
+                    success:function(data) {
+                                empty_div = $('<div></div>').html(data);
+                                lis = empty_div.find('li');
+                                console.log('li length: ' + lis.length);
+                                for (var i = 0; i < lis.length; i++) {
+                                    var li = lis[i];
+                                    var date = $(li).find('.col2')[0].innerText;
+                                    var artist = $(li).attr('data-artist');
+                                    var song = $($(li).find('h3')[0]).find('a')[0].innerText;
+                                    var url = '';
+                                    Pandora.addSong(Pandora.songGetter.station_id, song, artist, url, date);
+                                    re = /([\w-]+)\/([\w-]+)\/([\w-]+)/ // artist, album, song
+                                }
+                                //Pandora.addSong(Pandora.songGetter.station_id, 'a');
+                                Pandora.songGetter.current_idx += lis.length;
+                                Pandora.songGetter.done = $(empty_div).find('.show_more').length == 0;
+                            },
+                    async:  false
                     });
             }
-        }
-    },
-    getSongs: function(station_id, start) {
-        var done = false;
-        while (! done) {
-            $.ajax()
-            done = true;
         }
     },
     songs: function(station) {
@@ -106,32 +99,14 @@ var Pandora = {
             Pandora.songGetter.run(station['id']);
         }
         return Pandora._songs[station['id']];
-    }
-};
-var stationDivs = function() {
-    divs = document.getElementsByClassName("stationNameText");
-    return divs;
-};
-
-var stationDiv = function(stationName) {
-    divs = stationDivs();
-    for (var i = 0; i < divs.length; i++) {
-        if (divs[i].innerText == stationName) {
-            alert('found ' + stationName);
-            return divs[i];
+    },
+    allSongs: function () {
+        alltogetherNow = []
+        for (key in Pandora._songs) {
+            alltogetherNow.concat(Pandora._songs[key]);
         }
+        return alltogetherNow;
     }
-    alert('did not find ' + stationName);
-    return null;
-};
-
-var getLikedSongs = function() {
-    div = stationDiv(activeStation);
-    if (div != null) {
-
-        
-    }
-    return ['hey', 'you'];
 };
 
 chrome.extension.onMessage.addListener(
@@ -140,8 +115,9 @@ chrome.extension.onMessage.addListener(
             sendResponse({stations: Pandora.stations()});
         } else if(request.msg == "songList") {
             sendResponse({songs: Pandora.songs(request.station)});
+        } else if (request.msg == "allSongs") {
+            sendResponse({songs: Pandora.allSongs()});
         }
     });
-
 
 alert('pandora loaded!');
