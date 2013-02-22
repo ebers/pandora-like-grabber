@@ -120,4 +120,4 @@ chrome.extension.onMessage.addListener(
         }
     });
 
-alert('pandora loaded!');
+console.log("pandora.js loaded");

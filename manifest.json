@@ -12,7 +12,7 @@
   },
   "permissions": ["tabs", "http://*.pandora.com/"],
   "content_scripts": [{
-    "matches": ["http://*.pandora.com/"],
+    "matches": ["http://*.pandora.com/", "http://*.pandora.com/*"],
     "js": ["jquery.min.js", "pandora.js"]
   }]
 }
